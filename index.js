@@ -10,10 +10,23 @@ const authToken         = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const client            = twilio(accountId, authToken);
 const app               = express();
+const server            = require('http').createServer(app);
+const io                = require('socket.io')(server);
 const port              = process.env.APP_PORT;
+const path              = require('path');
+
+io.on('connection', (socket) => {
+  socket.on('chat message', function(msg) {
+    socket.emit('send_response', ++msg)
+  });
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.get('/', (_, res) => {
   res.send('Hey There.');
@@ -28,14 +41,17 @@ app.post('/chat', function (req, res) {
   console.log(`Body: ${formattedMessage.Body}`);
   console.log('--------------------------');
 
-  const replyBody = 'I got your message';
+  let replyBody = `I got your message ${formattedMessage.Body}`;
 
   client.messages.create({
     from: twilioPhoneNumber,
     body: replyBody,
     to: formattedMessage.From
   }).then(message => {
-    console.log(`Replied with: ${replyBody}`);
+    io.sockets.emit('wa_message', replyBody)
+    console.log(` ${replyBody}`);
+  }).catch(error => {
+    console.log (error)
   });
 
   // Twiml response
@@ -43,9 +59,10 @@ app.post('/chat', function (req, res) {
   res.send(response);
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is working on http://localhost:${port}`);
 });
+
 
 
 
