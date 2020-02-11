@@ -14,6 +14,17 @@ const server            = require('http').createServer(app);
 const io                = require('socket.io')(server);
 const port              = process.env.APP_PORT;
 const path              = require('path');
+const mongodb           = require('mongodb');
+
+
+const mongoClient = new mongodb.MongoClient("mongodb://33.33.33.10:27017/", { useUnifiedTopology: true });
+
+mongoClient.connect(function(err, client){
+  if(err) return console.log(err);
+  var db = client.db('cobrowser_v3');
+  db.createCollection('nrt_messages');
+  app.db = db
+});
 
 io.on('connection', (socket) => {
   socket.on('chat message', function(msg) {
@@ -57,6 +68,16 @@ app.post('/chat', function (req, res) {
   // Twiml response
   const response  = twilio.twiml.MessagingResponse(replyBody);
   res.send(response);
+
+  const message = {
+    "from": formattedMessage.From,
+    "body": formattedMessage.Body,
+    "status": "pending",
+    "time": new Date()
+  };
+
+  app.db.collection('nrt_messages').insertOne(message);
+
 });
 
 server.listen(port, () => {
