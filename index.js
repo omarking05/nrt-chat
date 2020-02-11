@@ -1,51 +1,32 @@
 require('dotenv-safe').config();
 
-const twilio            = require('twilio');
-const express           = require('express');
 const bodyParser        = require('body-parser');
-const WhatsAppMessage   = require('./whatsapp-message');
-
-const accountId         = process.env.TWILIO_ACCOUNT_ID;
-const authToken         = process.env.TWILIO_AUTH_TOKEN;
-const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-const client            = twilio(accountId, authToken);
-const app               = express();
+const routes            = require('./routes');
+const {app, Server, io} = require('./config');
 const port              = process.env.APP_PORT;
 
+
+/** Server Config */
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+/** Server Config */
 
-app.get('/', (_, res) => {
-  res.send('Hey There.');
-});
+/** Routes Config */
+app.use('/', routes);
+/** Routes Config */
 
-app.post('/chat', function (req, res) {
-  const rawMessage        = req.body;
-  const formattedMessage  = new WhatsAppMessage(rawMessage);
-
-  console.log('--------------------------');
-  console.log(`From: ${formattedMessage.From}`);
-  console.log(`Body: ${formattedMessage.Body}`);
-  console.log('--------------------------');
-
-  const replyBody = 'I got your message';
-
-  client.messages.create({
-    from: twilioPhoneNumber,
-    body: replyBody,
-    to: formattedMessage.From
-  }).then(message => {
-    console.log(`Replied with: ${replyBody}`);
+/** Socket io connection */
+io.on('connection', (socket) => {
+  socket.on('chat message', function(msg) {
+    socket.emit('send_response', ++msg)
   });
-
-  // Twiml response
-  const response  = twilio.twiml.MessagingResponse(replyBody);
-  res.send(response);
 });
+/** Socket io connection */
 
-app.listen(port, () => {
+Server.listen(port, () => {
   console.log(`Server is working on http://localhost:${port}`);
 });
+
 
 
 
