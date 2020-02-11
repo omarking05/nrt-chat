@@ -15,8 +15,8 @@
         document.getElementById('value-socket-io').innerText = window.globalValue
       });
 
+      // Here we receive incoming whatsapp message
       socket.on('wa_message', function (data) {
-        console.log(data)
         document.getElementById('wa_message').innerText = data.Body
       });
     });
