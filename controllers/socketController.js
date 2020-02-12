@@ -1,7 +1,7 @@
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
 const OutgoingMessage   = require('../models/whatsapp/outgoing-message');
-// const { io }            = require('../config');
+const { io }            = require('../config');
 
 const handleSocket = function(socket) {
 
@@ -20,9 +20,8 @@ const handleSocket = function(socket) {
                 from: response.to
             });
             newOutgoingMessage.isReplyFromAgent = true;
-            newOutgoingMessage.isReplyFromAgent = true;
-            // TODO or io.sockets.emit('wa_message', newOutgoingMessage);
-            socket.emit('wa_message', newOutgoingMessage);
+
+            io.sockets.emit('wa_message', newOutgoingMessage);
             console.log (msg);
 
             // TODO Need insert reply into database
