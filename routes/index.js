@@ -4,6 +4,7 @@ const Chat                = require('../models/chat');
 const Message             = require('../models/message');
 const routes              = require('express').Router();
 const { io }              = require('../config');
+const chatController      = require('../controllers/chatController');
 
 routes.get('/', (_, res) => {
   res.send('Hey There.');
@@ -26,6 +27,8 @@ routes.post('/chat', (req, res) => {
 routes.get('/agent', (_, res) => {
   res.sendFile(path.join(__dirname + '/../views/agent.html'));
 });
+
+routes.get('/chats', chatController.getChats);
 
 async function saveIncomingMessageToDb(formattedMessage) {
   var existChat = await findChatBySenderId(formattedMessage.From);
