@@ -7,7 +7,7 @@ const express           = require('express')
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
 const port              = process.env.APP_PORT;
-const WhatsAppMessage   = require('./models/whatsapp-message');
+const OutgoingMessage   = require('./models/whatsapp/outgoing-message');
 
 /** Server Config */
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -21,6 +21,8 @@ app.use('/', routes);
 
 /** Socket io connection */
 io.on('connection', (socket) => {
+
+  // Listening for new reply by agent
   socket.on('wa_reply', function(msg) {
     const accountId           = process.env.TWILIO_ACCOUNT_ID;
     const authToken           = process.env.TWILIO_AUTH_TOKEN;
@@ -31,24 +33,15 @@ io.on('connection', (socket) => {
       body: msg.text,
       to: 'whatsapp:' + msg.userId
     }).then(response => {
-
-      console.log(response);
-      var newWhatsAppMessage = new WhatsAppMessage({
-        'From': response.to,
-        'Body': response.body
+      const newOutgoingMessage = new OutgoingMessage({
+        body: response.body,
+        from: response.to
       });
-
-      newWhatsAppMessage.isReplyFromAgent = true;
-      io.sockets.emit('wa_message', newWhatsAppMessage);
-      console.log (msg);
-      // TODO Need insert reply into database
+      newOutgoingMessage.isReplyFromAgent = true;
+      io.sockets.emit('wa_message', newOutgoingMessage);
     }).catch(error => {
       console.log(error);
     });
-
-    // Twiml response
-    // TODO Commented this code, need investigate later.
-    // const response  = twilio.twiml.MessagingResponse('hello world');
   });
 });
 /** Socket io connection */
