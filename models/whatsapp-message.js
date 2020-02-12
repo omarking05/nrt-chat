@@ -9,8 +9,9 @@ class WhatsAppMessage {
     this.NumSegments    = message.NumSegments;
     this.MessageSid     = message.MessageSid;
     this.AccountSid     = message.AccountSid;
-    this.From           = message.From;
+    this.From           = message.From.replace('whatsapp:', '');
     this.ApiVersion     = message.ApiVersion;
+    this.Time           = new Date();
   }
 }
 
