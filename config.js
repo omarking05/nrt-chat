@@ -8,7 +8,7 @@ const Server      = httpServer.Server(app);
 const io          = socketIo(Server);
 
 /** database connection*/
-mongoose.connect("mongodb://localhost/"+process.env.DATABASE_NAME, {
+mongoose.connect("mongodb://"+process.env.DATABASE_HOST+"/"+process.env.DATABASE_NAME, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
