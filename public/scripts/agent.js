@@ -8,8 +8,7 @@ window.addEventListener('load', function () {
 });
 
 function appendTextMessage(data) {
-    console.log (data);
-    var idElement = 'wa-message-' + data.From;
+    var idElement = 'wa-message-' + data.from;
     var waMessageElement = document.getElementById(idElement);
     if (!waMessageElement) {
         var waMessageElement = document.createElement('div');
@@ -17,7 +16,7 @@ function appendTextMessage(data) {
         waMessageElement.className = 'wa-message';
 
         var headingElement = document.createElement('span');
-        headingElement.innerText = 'Message from: ' + data.From;
+        headingElement.innerText = 'Message from: ' + data.from;
         headingElement.className = 'lead d-block mt-2';
 
         waMessageElement.appendChild(headingElement);
@@ -26,7 +25,7 @@ function appendTextMessage(data) {
     }
 
     var newMessage = document.createElement('span');
-    newMessage.id = data.MessageSid;
+    newMessage.id = data.messageSid;
     newMessage.className = 'd-block';
     var newMessageIcon;
     if (data.isReplyFromAgent) {
@@ -39,21 +38,21 @@ function appendTextMessage(data) {
         newMessageIcon.className = 'fas fa-user mr-2';
     }
     var newMessageText = document.createElement('span');
-        newMessageText.innerText = data.Body;
+        newMessageText.innerText = data.body;
 
     var newMessageTime = document.createElement('span');
         newMessageTime.className = 'message-time';
-        newMessageTime.innerText = new Intl.DateTimeFormat('nl-NL', {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',}).format(new Date(data.Time))
+        newMessageTime.innerText = new Intl.DateTimeFormat('nl-NL', {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',}).format(new Date(data.time))
 
     newMessage.appendChild(newMessageIcon);
     newMessage.appendChild(newMessageText);
     newMessage.appendChild(newMessageTime);
 
     var waFormReply;
-    if (!document.getElementById('form-reply-' + data.From)) {
-        waFormReply = waMessageElement.appendChild(buildReplyForm(data.From));
+    if (!document.getElementById('form-reply-' + data.from)) {
+        waFormReply = waMessageElement.appendChild(buildReplyForm(data.from));
     } else {
-        waFormReply = document.getElementById('form-reply-' + data.From);
+        waFormReply = document.getElementById('form-reply-' + data.from);
     }
 
     waMessageElement.insertBefore(newMessage, waFormReply);

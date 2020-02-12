@@ -1,5 +1,6 @@
 const path                = require('path');
-const WhatsAppMessage     = require('../models/whatsapp-message');
+const twilio              = require('twilio');
+const IncominMessage      = require('../models/whatsapp/incoming-message');
 const Chat                = require('../models/chat');
 const Message             = require('../models/message');
 const routes              = require('express').Router();
@@ -11,16 +12,20 @@ routes.get('/', (_, res) => {
 
 routes.post('/chat', (req, res) => {
   const rawMessage        = req.body;
-  const formattedMessage  = new WhatsAppMessage(rawMessage);
+  const formattedMessage  = new IncominMessage(rawMessage);
 
   // TODO Need to use callback in case when we have troubles with saving into DB
   saveIncomingMessageToDb(formattedMessage);
   io.sockets.emit('wa_message', formattedMessage);
 
   console.log('--------------------------');
-  console.log(`From: ${formattedMessage.From}`);
-  console.log(`Body: ${formattedMessage.Body}`);
+  console.log(`From: ${formattedMessage.from}`);
+  console.log(`Body: ${formattedMessage.body}`);
   console.log('--------------------------');
+
+  // Twiml response
+  const response  = twilio.twiml.MessagingResponse('replied');
+  res.send(response);
 });
 
 routes.get('/agent', (_, res) => {
@@ -28,16 +33,16 @@ routes.get('/agent', (_, res) => {
 });
 
 async function saveIncomingMessageToDb(formattedMessage) {
-  var existChat = await findChatBySenderId(formattedMessage.From);
+  var existChat = await findChatBySenderId(formattedMessage.from);
   if (!existChat || existChat.length == 0) {
-      existChat = await createChat({channel_type: 'whatsapp', sender_id: formattedMessage.From});
+      existChat = await createChat({channel_type: 'whatsapp', sender_id: formattedMessage.from});
   } else {
     existChat = existChat[0];
   }
   const message = {
-    'from'  : formattedMessage.From,
-    'to'    : formattedMessage.To,
-    'body'  : formattedMessage.Body,
+    'from'  : formattedMessage.from,
+    'to'    : formattedMessage.to,
+    'body'  : formattedMessage.body,
     'status': 'pending',
     'time'  : new Date(),
     'chat'  : existChat
