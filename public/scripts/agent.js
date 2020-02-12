@@ -68,6 +68,9 @@ function buildReplyForm(userId) {
         button.innerText = 'Reply';
         button.onclick = function() {
             var textElement = document.getElementById('reply-message-input-' + userId);
+            if (!textElement) {
+                return false;
+            }
             sendReplyToServer(textElement.value, userId);
             textElement.value = '';
         };
@@ -87,6 +90,11 @@ function buildReplyForm(userId) {
     var form = document.createElement('form');
         form.id = 'form-reply-' + userId;
         form.className = 'mt-3';
+        form.onsubmit = function() {
+            button.click();
+            return false;
+        };
+
 
     div.appendChild(label);
     div.appendChild(input);
