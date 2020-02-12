@@ -16,6 +16,7 @@ module.exports = {
             'body'  : formattedMessage.Body,
             'status': 'pending',
             'time'  : new Date(),
+            'agent' : formattedMessage.agent,
             'chat'  : existChat
         };
 
