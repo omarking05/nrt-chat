@@ -1,5 +1,6 @@
 const path                = require('path');
-const WhatsAppMessage     = require('../models/whatsapp-message');
+const twilio              = require('twilio');
+const IncominMessage      = require('../models/whatsapp/incoming-message');
 const routes              = require('express').Router();
 const { io }              = require('../config');
 const chatController      = require('../controllers/chatController');
@@ -11,16 +12,20 @@ routes.get('/', (_, res) => {
 
 routes.post('/chat', (req, res) => {
   const rawMessage        = req.body;
-  const formattedMessage  = new WhatsAppMessage(rawMessage);
+  const formattedMessage  = new IncominMessage(rawMessage);
 
   // TODO Need to use callback in case when we have troubles with saving into DB
   chatService.saveIncomingMessageToDb(formattedMessage);
   io.sockets.emit('wa_message', formattedMessage);
 
   console.log('--------------------------');
-  console.log(`From: ${formattedMessage.From}`);
-  console.log(`Body: ${formattedMessage.Body}`);
+  console.log(`From: ${formattedMessage.from}`);
+  console.log(`Body: ${formattedMessage.body}`);
   console.log('--------------------------');
+
+  // Twiml response
+  const response  = twilio.twiml.MessagingResponse('replied');
+  res.send(response);
 });
 
 routes.get('/agent', (_, res) => {

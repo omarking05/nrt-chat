@@ -11,9 +11,9 @@ module.exports = {
             existChat = existChat[0];
         }
         const message = {
-            'from'  : formattedMessage.From,
-            'to'    : formattedMessage.To,
-            'body'  : formattedMessage.Body,
+            'from'  : formattedMessage.from,
+            'to'    : formattedMessage.to,
+            'body'  : formattedMessage.body,
             'status': 'pending',
             'time'  : new Date(),
             'agent' : formattedMessage.agent,
