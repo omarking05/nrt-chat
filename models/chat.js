@@ -3,8 +3,9 @@ const mongoose = require("mongoose");
 const Chat = mongoose.model(
     "Chat",
     new mongoose.Schema({
-        channel_type: String,
-        sender_id: String,
+        channelType: String,
+        senderId: String,
+        currentAgentId: String,
         messages: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message"

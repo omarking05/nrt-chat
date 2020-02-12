@@ -3,12 +3,16 @@ const mongoose = require("mongoose");
 const Message = mongoose.model(
     "Message",
     new mongoose.Schema({
+        type: String,
         from: String,
         to: String,
         body: String,
-        status: String,
+        numMedia: Number,
+        accountSid: String,
+        apiVersion: String,
         time: String,
-        agent: String,
+        isAgent: Boolean,
+        agentId: String, // Relation with agent
         chat: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Chat"

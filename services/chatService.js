@@ -10,17 +10,20 @@ module.exports = {
         } else {
             existChat = existChat[0];
         }
-        const message = {
-            'from'  : formattedMessage.from,
-            'to'    : formattedMessage.to,
-            'body'  : formattedMessage.body,
-            'status': 'pending',
-            'time'  : new Date(),
-            'agent' : formattedMessage.agent,
-            'chat'  : existChat
-        };
 
-        this.createMessage(message, existChat._id);
+        formattedMessage.existChat = existChat;
+        
+        // const message = {
+        //     'from'  : formattedMessage.from,
+        //     'to'    : formattedMessage.to,
+        //     'body'  : formattedMessage.body,
+        //     'status': 'pending',
+        //     'time'  : new Date(),
+        //     'agent' : formattedMessage.agent,
+        //     'chat'  : existChat
+        // };
+
+        this.createMessage(formattedMessage, existChat._id);
 
     },
 

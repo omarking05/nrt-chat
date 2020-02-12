@@ -28,7 +28,7 @@ function appendTextMessage(data) {
     newMessage.id = data.messageSid;
     newMessage.className = 'd-block';
     var newMessageIcon;
-    if (data.isReplyFromAgent) {
+    if (data.isAgent) {
         newMessage.className += ' message-agent';
         newMessageIcon = document.createElement('span');
         newMessageIcon.className = 'fas fa-user mr-2';

@@ -16,13 +16,8 @@ const handleSocket = function(socket) {
             body: msg.text,
             to: 'whatsapp:' + msg.userId
         }).then(response => {
-            const newOutgoingMessage = new OutgoingMessage({
-                body: response.body,
-                from: response.to,
-                to  : response.from
-            });
-            newOutgoingMessage.isReplyFromAgent = true;
-            newOutgoingMessage.agent = true;
+            const newOutgoingMessage = new OutgoingMessage(response);
+            newOutgoingMessage.isAgent = true;
             chatService.saveIncomingMessageToDb(newOutgoingMessage);
 
             io.sockets.emit('wa_message', newOutgoingMessage);
