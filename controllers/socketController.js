@@ -1,6 +1,7 @@
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
 const OutgoingMessage   = require('../models/whatsapp/outgoing-message');
+const chatService       = require('../services/chatService');
 // const { io }            = require('../config');
 
 const handleSocket = function(socket) {
@@ -17,10 +18,12 @@ const handleSocket = function(socket) {
         }).then(response => {
             const newOutgoingMessage = new OutgoingMessage({
                 body: response.body,
-                from: response.to
+                from: response.to,
+                to  : response.from
             });
             newOutgoingMessage.isReplyFromAgent = true;
-            newOutgoingMessage.isReplyFromAgent = true;
+            newOutgoingMessage.agent = true;
+            chatService.saveIncomingMessageToDb(newOutgoingMessage);
             // TODO or io.sockets.emit('wa_message', newOutgoingMessage);
             socket.emit('wa_message', newOutgoingMessage);
             console.log (msg);
