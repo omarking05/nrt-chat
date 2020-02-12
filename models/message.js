@@ -4,8 +4,6 @@ const Message = mongoose.model(
     "Message",
     new mongoose.Schema({
         type: String,
-        from: String,
-        to: String,
         body: String,
         numMedia: Number,
         accountSid: String,
