@@ -4,7 +4,11 @@ const Chat = mongoose.model(
     "Chat",
     new mongoose.Schema({
         channel_type: String,
-        sender_id: String
+        sender_id: String,
+        messages: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Message"
+        }]
     })
 );
 

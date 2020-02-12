@@ -65,7 +65,7 @@ async function saveIncomingMessageToDb(formattedMessage) {
     'chat'  : existChat
   };
 
-  createMessage(message);
+  createMessage(message, existChat._id);
 }
 
 const createChat = function(chat) {
@@ -75,9 +75,13 @@ const createChat = function(chat) {
     });
 };
 
-function createMessage(message) {
-    Message.create(message).then(docComment => {
-        console.log("\n>> Created new message done");
+const createMessage = function(message, chatId) {
+    return Message.create(message).then(docMessage => {
+        console.log("\n>> Created new message done ");
+        return Chat.findByIdAndUpdate(chatId,
+            { $push: { messages: docMessage._id } },
+            { new: true, useFindAndModify: false }
+        );
     });
 };
 
