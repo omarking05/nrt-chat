@@ -8,6 +8,7 @@ const Message = mongoose.model(
         body: String,
         status: String,
         time: String,
+        agent: String,
         chat: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Chat"

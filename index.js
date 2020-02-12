@@ -8,6 +8,7 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
 const port              = process.env.APP_PORT;
 const WhatsAppMessage   = require('./models/whatsapp-message');
+const chatService       = require('./services/chatService')
 
 /** Server Config */
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,8 +36,11 @@ io.on('connection', (socket) => {
       console.log(response);
       var newWhatsAppMessage = new WhatsAppMessage({
         'From': response.to,
-        'Body': response.body
+        'Body': response.body,
+        'To'  : response.from
       });
+      newWhatsAppMessage.agent = true;
+      chatService.saveIncomingMessageToDb(newWhatsAppMessage);
 
       newWhatsAppMessage.isReplyFromAgent = true;
       io.sockets.emit('wa_message', newWhatsAppMessage);
