@@ -2,12 +2,10 @@ require('dotenv-safe').config();
 
 const bodyParser        = require('body-parser');
 const routes            = require('./routes');
+const handleSocket      = require('./controllers/socketController');
 const {app, Server, io} = require('./config');
 const express           = require('express')
-const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-const twilio            = require('twilio');
 const port              = process.env.APP_PORT;
-const OutgoingMessage   = require('./models/whatsapp/outgoing-message');
 
 /** Server Config */
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -21,28 +19,7 @@ app.use('/', routes);
 
 /** Socket io connection */
 io.on('connection', (socket) => {
-
-  // Listening for new reply by agent
-  socket.on('wa_reply', function(msg) {
-    const accountId           = process.env.TWILIO_ACCOUNT_ID;
-    const authToken           = process.env.TWILIO_AUTH_TOKEN;
-    const client              = twilio(accountId, authToken);
-
-    client.messages.create({
-      from: twilioPhoneNumber,
-      body: msg.text,
-      to: 'whatsapp:' + msg.userId
-    }).then(response => {
-      const newOutgoingMessage = new OutgoingMessage({
-        body: response.body,
-        from: response.to
-      });
-      newOutgoingMessage.isReplyFromAgent = true;
-      io.sockets.emit('wa_message', newOutgoingMessage);
-    }).catch(error => {
-      console.log(error);
-    });
-  });
+  handleSocket(socket);
 });
 /** Socket io connection */
 
