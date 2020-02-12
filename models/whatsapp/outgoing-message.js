@@ -5,8 +5,7 @@ class OutgoingMessage {
     this.accountSid     = message.accountSid;
     this.body           = message.body;
     this.numMedia       = message.numMedia;
-    this.from           = message.from.replace('whatsapp:', '');
-    this.to             = message.to.replace('whatsapp:', '');
+    this.senderId       = message.to.replace('whatsapp:', '');
     this.apiVersion     = message.apiVersion;
     this.agentId        = ''; // Relation with agent 
     this.time           = new Date();
