@@ -1,0 +1,105 @@
+var socket = io('http://localhost:3000');
+
+window.addEventListener('load', function () {
+    // Here we receive incoming whatsapp message
+    socket.on('wa_message', function (data) {
+        appendTextMessage(data);
+    });
+});
+
+function appendTextMessage(data) {
+    console.log (data);
+    var idElement = 'wa-message-' + data.From;
+    var waMessageElement = document.getElementById(idElement);
+    if (!waMessageElement) {
+        var waMessageElement = document.createElement('div');
+        waMessageElement.id = idElement;
+        waMessageElement.className = 'wa-message';
+
+        var headingElement = document.createElement('span');
+        headingElement.innerText = 'Message from: ' + data.From;
+        headingElement.className = 'lead d-block mt-2';
+
+        waMessageElement.appendChild(headingElement);
+
+        document.getElementById('wa-list-messages').appendChild(waMessageElement)
+    }
+
+    var newMessage = document.createElement('span');
+    newMessage.id = data.MessageSid;
+    newMessage.className = 'd-block';
+    var newMessageIcon;
+    if (data.isReplyFromAgent) {
+        newMessage.className += ' message-agent';
+        newMessageIcon = document.createElement('span');
+        newMessageIcon.className = 'fas fa-user mr-2';
+    } else {
+        newMessage.className += ' message-visitor';
+        newMessageIcon = document.createElement('span');
+        newMessageIcon.className = 'fas fa-user mr-2';
+    }
+    var newMessageText = document.createElement('span');
+        newMessageText.innerText = data.Body;
+
+    var newMessageTime = document.createElement('span');
+        newMessageTime.className = 'message-time';
+        newMessageTime.innerText = new Intl.DateTimeFormat('nl-NL', {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',}).format(new Date(data.Time))
+
+    newMessage.appendChild(newMessageIcon);
+    newMessage.appendChild(newMessageText);
+    newMessage.appendChild(newMessageTime);
+
+    var waFormReply;
+    if (!document.getElementById('form-reply-' + data.From)) {
+        waFormReply = waMessageElement.appendChild(buildReplyForm(data.From));
+    } else {
+        waFormReply = document.getElementById('form-reply-' + data.From);
+    }
+
+    waMessageElement.insertBefore(newMessage, waFormReply);
+}
+
+function buildReplyForm(userId) {
+    // TODO Now I use phone number as a userId
+    var button = document.createElement('button');
+        button.type = 'button';
+        button.id = 'reply-button-' + userId;
+        button.className = 'btn btn-primary reply-message-button';
+        button.innerText = 'Reply';
+        button.onclick = function() {
+            var textElement = document.getElementById('reply-message-input-' + userId);
+            sendReplyToServer(textElement.value, userId);
+            textElement.value = '';
+        };
+
+    var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control reply-message';
+        input.id = 'reply-message-input-' + userId;
+        input.placeholder = 'Reply text';
+
+    var label = document.createElement('label');
+        label.for = 'reply-message-input-' + userId;
+
+    var div = document.createElement('div');
+        div.className = 'form-group';
+
+    var form = document.createElement('form');
+        form.id = 'form-reply-' + userId;
+        form.className = 'mt-3';
+
+    div.appendChild(label);
+    div.appendChild(input);
+    form.appendChild(div);
+    form.appendChild(button);
+
+    return form;
+}
+
+function sendReplyToServer(text, userId) {
+    socket.emit('wa_reply', {
+        text: text,
+        userId: userId,
+        agentId: 1
+    });
+}

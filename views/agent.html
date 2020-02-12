@@ -1,32 +1,17 @@
 <html>
 
 <head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="styles/main.css"></link>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-  <script>
-    window.globalValue = 0;
-    window.addEventListener('load', function () {
-      var socket = io('http://localhost:3000');
-      window.setInterval(function () {
-        socket.emit('chat message', globalValue)
-      }, 500);
-
-      socket.on('send_response', function (data) {
-        window.globalValue = data;
-        document.getElementById('value-socket-io').innerText = window.globalValue
-      });
-
-      // Here we receive incoming whatsapp message
-      socket.on('wa_message', function (data) {
-        document.getElementById('wa_message').innerText = data.Body
-      });
-    });
-  </script>
+  <script src="https://kit.fontawesome.com/d6f9094a71.js" crossorigin="anonymous"></script>
+  <script src="scripts/agent.js"></script>
 </head>
 
 <body>
-  <h1>Check Socket.io</h1>
-  <span id="value-socket-io">0</span><br>
-  <span id="wa_message">0</span>
+  <h3>Agent page</h3>
+  <div id="wa-list-messages" class="col-lg-12 wa-list-messages">
+  </div>
 </body>
 
 </html>
