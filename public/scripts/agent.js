@@ -8,7 +8,7 @@ window.addEventListener('load', function () {
 });
 
 function appendTextMessage(data) {
-    var idElement = 'wa-message-' + data.from;
+    var idElement = 'wa-message-' + data.senderId;
     var waMessageElement = document.getElementById(idElement);
     if (!waMessageElement) {
         var waMessageElement = document.createElement('div');
@@ -16,7 +16,7 @@ function appendTextMessage(data) {
         waMessageElement.className = 'wa-message';
 
         var headingElement = document.createElement('span');
-        headingElement.innerText = 'Message from: ' + data.from;
+        headingElement.innerText = 'Message from: ' + data.senderId;
         headingElement.className = 'lead d-block mt-2';
 
         waMessageElement.appendChild(headingElement);
@@ -49,10 +49,10 @@ function appendTextMessage(data) {
     newMessage.appendChild(newMessageTime);
 
     var waFormReply;
-    if (!document.getElementById('form-reply-' + data.from)) {
-        waFormReply = waMessageElement.appendChild(buildReplyForm(data.from));
+    if (!document.getElementById('form-reply-' + data.senderId)) {
+        waFormReply = waMessageElement.appendChild(buildReplyForm(data.senderId));
     } else {
-        waFormReply = document.getElementById('form-reply-' + data.from);
+        waFormReply = document.getElementById('form-reply-' + data.senderId);
     }
 
     waMessageElement.insertBefore(newMessage, waFormReply);
