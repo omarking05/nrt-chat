@@ -18,7 +18,8 @@ const handleSocket = function(socket) {
         }).then(response => {
             const newOutgoingMessage = new OutgoingMessage({
                 body: response.body,
-                from: response.to
+                from: response.to,
+                to  : response.from
             });
             newOutgoingMessage.isReplyFromAgent = true;
             newOutgoingMessage.agent = true;
