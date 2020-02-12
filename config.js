@@ -1,16 +1,22 @@
 const express     = require('express');
 const httpServer  = require('http');
 const socketIo    = require('socket.io');
-const mongodb     = require('mongodb');
+const mongoose    = require("mongoose");
 
 const app         = express();
 const Server      = httpServer.Server(app);
 const io          = socketIo(Server);
-const mongoClient = new mongodb.MongoClient(process.env.MONGO_CONNECTION_STRING, { useUnifiedTopology: true });
+
+/** database connection*/
+mongoose.connect("mongodb://localhost/"+process.env.DATABASE_NAME, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log("Successfully connect to MongoDB."))
+    .catch(err => console.error("Connection error", err));
 
 module.exports = {
   app,
   Server,
-  io,
-  mongoClient
+  io
 }

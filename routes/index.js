@@ -1,19 +1,14 @@
 const path                = require('path');
 const twilio              = require('twilio');
 const WhatsAppMessage     = require('../models/whatsapp-message');
+const Chat                = require('../models/chat');
+const Message             = require('../models/message');
 const routes              = require('express').Router();
-const { io, mongoClient } = require('../config');
+const { io }              = require('../config');
 const accountId           = process.env.TWILIO_ACCOUNT_ID;
 const authToken           = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber   = process.env.TWILIO_PHONE_NUMBER;
 const client              = twilio(accountId, authToken);
-let db                    = {};
-
-mongoClient.connect(function(err, client){
-  if(err) return console.log(err);
-  db = client.db('cobrowser_v3');
-  db.createCollection('nrt_messages');
-});
 
 routes.get('/', (_, res) => {
   res.send('Hey There.');
@@ -54,16 +49,40 @@ routes.get('/agent', (_, res) => {
   res.sendFile(path.join(__dirname + '/../views/agent.html'));
 });
 
-function saveIncomingMessageToDb(formattedMessage) {
+async function saveIncomingMessageToDb(formattedMessage) {
+  var existChat = await findChatBySenderId(formattedMessage.From);
+  if (!existChat || existChat.length == 0) {
+      existChat = await createChat({channel_type: 'whatsapp', sender_id: formattedMessage.From});
+  } else {
+    existChat = existChat[0];
+  }
   const message = {
     'from'  : formattedMessage.From,
     'to'    : formattedMessage.To,
     'body'  : formattedMessage.Body,
     'status': 'pending',
-    'time'  : new Date()
+    'time'  : new Date(),
+    'chat'  : existChat
   };
 
-  db.collection('nrt_messages').insertOne(message);
+  createMessage(message);
 }
+
+const createChat = function(chat) {
+    return Chat.create(chat).then(docTutorial => {
+        console.log("\n>> Created new Chat done");
+        return docTutorial;
+    });
+};
+
+function createMessage(message) {
+    Message.create(message).then(docComment => {
+        console.log("\n>> Created new message done");
+    });
+};
+
+const findChatBySenderId = function(senderId) {
+    return Chat.find({sender_id: senderId});
+};
 
 module.exports = routes;
