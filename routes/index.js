@@ -1,14 +1,9 @@
 const path                = require('path');
 const WhatsAppMessage     = require('../models/whatsapp-message');
+const Chat                = require('../models/chat');
+const Message             = require('../models/message');
 const routes              = require('express').Router();
-const { io, mongoClient } = require('../config');
-let db                    = {};
-
-mongoClient.connect(function(err, client){
-  if(err) return console.log(err);
-  db = client.db('cobrowser_v3');
-  db.createCollection('nrt_messages');
-});
+const { io }              = require('../config');
 
 routes.get('/', (_, res) => {
   res.send('Hey There.');
@@ -32,16 +27,44 @@ routes.get('/agent', (_, res) => {
   res.sendFile(path.join(__dirname + '/../views/agent.html'));
 });
 
-function saveIncomingMessageToDb(formattedMessage) {
+async function saveIncomingMessageToDb(formattedMessage) {
+  var existChat = await findChatBySenderId(formattedMessage.From);
+  if (!existChat || existChat.length == 0) {
+      existChat = await createChat({channel_type: 'whatsapp', sender_id: formattedMessage.From});
+  } else {
+    existChat = existChat[0];
+  }
   const message = {
     'from'  : formattedMessage.From,
     'to'    : formattedMessage.To,
     'body'  : formattedMessage.Body,
     'status': 'pending',
-    'time'  : new Date()
+    'time'  : new Date(),
+    'chat'  : existChat
   };
 
-  db.collection('nrt_messages').insertOne(message);
+  createMessage(message, existChat._id);
 }
+
+const createChat = function(chat) {
+    return Chat.create(chat).then(docTutorial => {
+        console.log("\n>> Created new Chat done");
+        return docTutorial;
+    });
+};
+
+const createMessage = function(message, chatId) {
+    return Message.create(message).then(docMessage => {
+        console.log("\n>> Created new message done ");
+        return Chat.findByIdAndUpdate(chatId,
+            { $push: { messages: docMessage._id } },
+            { new: true, useFindAndModify: false }
+        );
+    });
+};
+
+const findChatBySenderId = function(senderId) {
+    return Chat.find({sender_id: senderId});
+};
 
 module.exports = routes;
