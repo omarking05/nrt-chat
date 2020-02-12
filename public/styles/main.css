@@ -1,0 +1,24 @@
+.wa-message {
+    width: 50%;
+    min-width: 250px;
+    float:left;
+    border: 1px solid burlywood;
+}
+
+.message-visitor {
+    margin-left: 10px;
+}
+
+.message-agent {
+    margin-left: 20px;
+}
+
+.message-time {
+    margin-left: 40px;
+    font-size: 10px;
+    color: darkolivegreen;
+}
+
+.form-reply {
+
+}
