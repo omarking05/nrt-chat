@@ -1,9 +1,10 @@
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
-const WhatsAppMessage   = require('../models/whatsapp-message');
+const OutgoingMessage   = require('../models/whatsapp/outgoing-message');
 // const { io }            = require('../config');
 
 const handleSocket = function(socket) {
+
     socket.on('wa_reply', function(msg) {
         const accountId           = process.env.TWILIO_ACCOUNT_ID;
         const authToken           = process.env.TWILIO_AUTH_TOKEN;
@@ -14,16 +15,14 @@ const handleSocket = function(socket) {
             body: msg.text,
             to: 'whatsapp:' + msg.userId
         }).then(response => {
-
-            console.log(response);
-            let newWhatsAppMessage = new WhatsAppMessage({
-                'From': response.to,
-                'Body': response.body
+            const newOutgoingMessage = new OutgoingMessage({
+                body: response.body,
+                from: response.to
             });
-
-            newWhatsAppMessage.isReplyFromAgent = true;
-            // TODO or io.sockets.emit('wa_message', newWhatsAppMessage);
-            socket.emit('wa_message', newWhatsAppMessage);
+            newOutgoingMessage.isReplyFromAgent = true;
+            newOutgoingMessage.isReplyFromAgent = true;
+            // TODO or io.sockets.emit('wa_message', newOutgoingMessage);
+            socket.emit('wa_message', newOutgoingMessage);
             console.log (msg);
 
             // TODO Need insert reply into database
