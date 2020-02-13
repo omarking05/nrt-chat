@@ -5,15 +5,15 @@ const chatService = require('./chatService');
 
 module.exports = {
   async handleIncomingMessage(incomingMessage) {
+    let agent = null;
 
     // Check if we have a chat that is currently going with this senderId
     const chat  = await Chat.findOne().where('senderId').equals(incomingMessage.senderId);
-
-    console.log('Chat', chat);
     
     // In case we already have a chat
     if (chat) {
       // Find the current agent who is handling this chat
+      agent = await Agent.findById(chat.currentAgentId);
 
       // Check if he is available and pass incoming message to him
 
@@ -23,21 +23,21 @@ module.exports = {
 
       // If no agents are available we should add it to queue
 
+    } else {
+      // If we don't have a chat, then its a new message with a new chat
+
+      // Then get all of our active agents
+      // That their current chats number is less than their max chats number
+
+      const agents = await Agent.find({
+        $where: function() {
+          return (this.currentNumberOfChats && (this.currentNumberOfChats < this.maxNumberOfChats) && this.isAvailable) || this.isAvailable;
+        }
+      });
+
+      // Pick random agent
+      agent = agents[Math.floor(Math.random() * agents.length)];
     }
-
-    // If we don't have a chat, then its a new message with a new chat
-
-    // Then get all of our active agents
-    // That their current chats number is less than their max chats number
-
-    const agents = await Agent.find({
-      $where: () => {
-        return this.currentNumberOfChats < this.maxNumberOfChats && this.isAvailable;
-      }
-    });
-
-    // Pick random agent
-    const randomAgent = agents[Math.floor(Math.random() * agents.length)];
 
     // Then decide
 
@@ -60,8 +60,20 @@ module.exports = {
         // Then get his channel, and pass this message to this channel
         // io.to(agentId).emit('wa_message', incomingMessage);
 
-    io.sockets.emit('wa_message', incomingMessage);
+    console.log('------------- Agent Handling Message -------------');
+    console.log(`Name: ${agent.name}`);
+    console.log(`isAvailable: ${agent.isAvailable}`);
+    console.log(`Max #Chats: ${agent.maxNumberOfChats}`);
+    console.log(`Current #Chats: ${agent.currentNumberOfChats}`);
+    console.log('------------- Agent Handling Message -------------');
 
+    // Assign message to this agent
+    incomingMessage.agentId = agent.id;
+    
+    // Send this message to this agent only
+    io.to(agent.id).emit('wa_message', incomingMessage);
+
+    // Then save it to DB
     chatService.saveIncomingMessageToDb(incomingMessage);
   }
 };

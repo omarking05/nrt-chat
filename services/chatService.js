@@ -19,16 +19,16 @@ function createMessage (message, chatId) {
 }
 
 function findChatBySenderId (senderId) {
-  return Chat.find({senderId: senderId});
+  return Chat.findOne({senderId: senderId});
 }
 
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
     var existChat = await findChatBySenderId(formattedMessage.senderId);
-    if (!existChat || existChat.length == 0) {
-      existChat = await createChat({channelType: 'whatsapp', senderId: formattedMessage.senderId});
+    if (!existChat) {
+      existChat = await createChat({channelType: 'whatsapp', senderId: formattedMessage.senderId, currentAgentId: formattedMessage.agentId});
     } else {
-      existChat = existChat[0];
+      existChat = existChat;
     }
 
     formattedMessage.existChat = existChat;

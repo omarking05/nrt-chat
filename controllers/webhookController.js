@@ -9,7 +9,8 @@ module.exports = {
     const incomingMessage = new IncominMessage(rawMessage);
 
     console.log('------------- Incoming message -------------');
-    console.log(incomingMessage);
+    console.log(`From: ${incomingMessage.senderId}`);
+    console.log(`Body: ${incomingMessage.body}`);
     console.log('------------- Incoming message -------------');
 
     // Let the decision maker choose which agent should reply to this message

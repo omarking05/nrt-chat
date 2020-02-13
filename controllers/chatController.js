@@ -2,12 +2,13 @@ const Chat    = require('../models/chat');
 const Agent   = require('../models/agent');
 
 module.exports = {
-  async getChats(_, res) {
+  async getChats(req, res) {
     try {
-      var chats = await Chat.find().populate('messages')
+      const agentId  = req.query.agentId;
+      var chats = await Chat.find({currentAgentId: agentId}).populate('messages')
       return res.send(chats);
     } catch (error) {
-      return res.send(error).code(500);
+      return res.send(error);
     }
   },
   async loginAgent(req, res) {

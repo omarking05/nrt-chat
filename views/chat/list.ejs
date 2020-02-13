@@ -54,6 +54,31 @@
         }
       }
     });
+
+    function loadListChats() {
+      var options = {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        }
+      };
+
+      fetch('/chats?agentId=<%= agent.id %>', options)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        var chats = data;
+        chats.forEach(function(chat) {
+          buildChatBlock(chat);
+        })
+
+      })
+      .catch(function(error) {
+        console.log('Error of loading chats', error)
+      });
+    }
+
     $(function() {
       $('#toggleAvailable').on('change', function() {
         $(this).val(this.checked);

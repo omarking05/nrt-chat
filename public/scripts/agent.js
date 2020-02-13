@@ -114,30 +114,6 @@ function sendReplyToServer(text, userId) {
     });
 }
 
-function loadListChats() {
-    var options = {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-        }
-    };
-
-    fetch('/chats', options)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        var chats = data;
-        chats.forEach(function(chat) {
-            buildChatBlock(chat);
-        })
-
-    })
-    .catch(function(error) {
-        console.log('Error of loading chats')
-    })
-}
-
 function buildChatBlock(chat) {
     if (chat.messages.length) {
         chat.messages.forEach(function(message) {
