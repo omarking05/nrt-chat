@@ -8,15 +8,13 @@ const twilio              = require('twilio');
 
 
 module.exports = {
-
-    async getChats(request, reply) {
+    async getChats(request, response) {
         try {
-            var chats = await Chat.find().populate("messages")
-            return reply.send(chats);
+            var chats = await Chat.find().populate("messages");
+            return response.send(chats);
         } catch (error) {
-            return reply.send(error).code(500);
+            return response.send(error).code(500);
         }
-
     },
 
     postChat(req, res) {
