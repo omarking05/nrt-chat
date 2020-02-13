@@ -1,4 +1,4 @@
-var socket = io('http://localhost:3000');
+var socket = {};
 
 window.addEventListener('load', function () {
     // Here we receive incoming whatsapp message
@@ -112,30 +112,6 @@ function sendReplyToServer(text, userId) {
         userId: userId,
         agentId: 1
     });
-}
-
-function loadListChats() {
-    var options = {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-        }
-    };
-
-    fetch('/chats', options)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        var chats = data;
-        chats.forEach(function(chat) {
-            buildChatBlock(chat);
-        })
-
-    })
-    .catch(function(error) {
-        console.log('Error of loading chats')
-    })
 }
 
 function buildChatBlock(chat) {

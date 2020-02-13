@@ -1,0 +1,39 @@
+<html>
+
+<head>
+  <title>Update Agent</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <h1 class="display-4">Update agent</h1>
+    <hr class="my-4">
+
+    <!-- Create agent form start -->
+    <form method="POST" action="/control/agent/agent-update">
+      <input name="id" type="text" value="<%= agent.id %>" hidden>
+
+      <div class="form-group">
+        <label for="agentName">Agent Name</label>
+        <input name="agentName" type="text" class="form-control" id="agentName" value="<%= agent.name %>">
+      </div>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input name="username" type="text" class="form-control" id="username" value="<%= agent.username %>">
+      </div>
+      <div class="form-group">
+        <label for="maxNumberOfChats">Maximum number of chats</label>
+        <input name="maxNumberOfChats" type="number" class="form-control" id="maxNumberOfChats" value="<%= agent.maxNumberOfChats %>">
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Update Agent</button>
+    </form>
+    <!-- Create agent form end -->
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+<html>
+
+<head>
+  <title>Create Account</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <h1 class="display-4">Create new account</h1>
+    <hr class="my-4">
+
+    <!-- Create account form start -->
+    <form method="POST" action="/control/account">
+      <div class="form-group">
+        <label for="name">Account Name</label>
+        <input name="name" type="text" class="form-control" id="name" placeholder="CoBrowser">
+      </div>
+      <div class="form-group">
+        <label for="waNumber">Whatsapp Number</label>
+        <input name="waNumber" type="text" class="form-control" id="waNumber" placeholder="+14155238886">
+      </div>
+      <div class="form-group">
+        <label for="agents">Agents</label>
+        <select name="agents" multiple class="form-control" id="agents">
+          <% agents.forEach(function(agent) { %>
+            <option value="<%= agent.id %>"><%= agent.name %></option>
+          <% }); %>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Create Account</button>
+    </form>
+    <!-- Create account form end -->
+
+  </div>
+</body>
+
+</html>

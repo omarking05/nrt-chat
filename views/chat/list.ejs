@@ -1,0 +1,91 @@
+<html>
+
+<head>
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link type="text/css" rel="stylesheet" href="../../styles/main.css"></link>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://kit.fontawesome.com/d6f9094a71.js" crossorigin="anonymous"></script>
+  <script src="../../scripts/agent.js"></script>
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <div class="row">
+      <div class="col-10">
+        <h1 class="display-4">Chats of agent (<%= agent.name %>)</h1>
+      </div>
+      <div style="margin-top: 15px;" class="col-2">
+        <form id="availabiltyForm" method="POST" action="/chat/availability">
+          <input type="text" hidden name="id" value="<%= agent.id %>">
+          <label class="switch">
+            <% if (agent.isAvailable) { %>
+              <input type="checkbox" id="toggleAvailable" name="isAvailable" checked>
+            <% } else { %>
+              <input type="checkbox" id="toggleAvailable" name="isAvailable">
+            <% } %>
+            <span class="slider round"></span>
+          </label>
+        </form>
+      </div>
+    </div>
+    <hr class="my-4">
+
+    <!-- Chats start -->
+    <div class="row">
+      <div id="wa-list-messages" class="col-lg-12 wa-list-messages">
+      </div>
+    </div>
+    <!-- Chats end -->
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    var socket = io('http://localhost:3000', {
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            'x-agentid': '<%= agent.id %>'
+          }
+        }
+      }
+    });
+
+    function loadListChats() {
+      var options = {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        }
+      };
+
+      fetch('/chats?agentId=<%= agent.id %>', options)
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        var chats = data;
+        chats.forEach(function(chat) {
+          buildChatBlock(chat);
+        })
+
+      })
+      .catch(function(error) {
+        console.log('Error of loading chats', error)
+      });
+    }
+
+    $(function() {
+      $('#toggleAvailable').on('change', function() {
+        $(this).val(this.checked);
+        $('#availabiltyForm').submit();
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,13 +1,14 @@
-const routes              = require('express').Router();
-const chatController      = require('../controllers/chatController');
+const routes          = require('express').Router();
+const chatController  = require('../controllers/chatController');
 
+// Home page
 routes.get('/', (_, res) => {
-  res.send('Hey There.');
+  res.redirect('/login');
 });
 
-routes.post('/chat', chatController.postChat);
-
-routes.get('/agent', chatController.showAgent);
+routes.get('/login', (_, res) => {
+  res.render('chat/login');
+});
 
 routes.get('/chats', chatController.getChats);
 

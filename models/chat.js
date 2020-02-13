@@ -6,6 +6,10 @@ const Chat = mongoose.model(
         channelType: String,
         senderId: String,
         currentAgentId: String,
+        account: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account"
+        },
         messages: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message"

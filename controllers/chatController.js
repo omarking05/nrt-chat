@@ -1,41 +1,63 @@
-const path                = require('path');
-const Chat                = require('../models/chat');
-const Message             = require('../models/message');
-const chatService         = require('../services/chatService');
-const IncominMessage      = require('../models/whatsapp/incoming-message');
-const { io }              = require('../config');
-const twilio              = require('twilio');
-
+const Chat    = require('../models/chat');
+const Agent   = require('../models/agent');
 
 module.exports = {
-    async getChats(request, response) {
-        try {
-            var chats = await Chat.find().populate("messages");
-            return response.send(chats);
-        } catch (error) {
-            return response.send(error).code(500);
-        }
-    },
-
-    postChat(req, res) {
-        const rawMessage        = req.body;
-        const formattedMessage  = new IncominMessage(rawMessage);
-
-        // TODO Need to use callback in case when we have troubles with saving into DB
-        chatService.saveIncomingMessageToDb(formattedMessage);
-        io.sockets.emit('wa_message', formattedMessage);
-
-        console.log('--------------------------');
-        console.log(`From: ${formattedMessage.from}`);
-        console.log(`Body: ${formattedMessage.body}`);
-        console.log('--------------------------');
-
-        // Twiml response
-        const response  = twilio.twiml.MessagingResponse('replied');
-        res.send(response);
-    },
-
-    showAgent(req, res) {
-        res.sendFile(path.join(__dirname + '/../views/agent.html'));
+  async getChats(req, res) {
+    try {
+      const agentId  = req.query.agentId;
+      var chats = await Chat.find({currentAgentId: agentId}).populate('messages')
+      return res.send(chats);
+    } catch (error) {
+      return res.send(error);
     }
+  },
+  async loginAgent(req, res) {
+    const username  = req.body.username;
+    const agent     = await Agent.findOne({
+      username
+    });
+
+    if (!agent) {
+      return res.send('Agent not found');
+    }
+
+    // Check if agent can NOT take more chats
+    if (agent.currentNumberOfChats >= agent.maxNumberOfChats) {
+      return res.send('Agent is fulffilled, and cannot take more chats');
+    }
+
+    // Let the agent start receive chats
+    return res.redirect(`/chat/start?username=${username}`);
+  },
+  async toggleAgentAvailability(req, res) {
+    const agentId     = req.body.id;
+    const isAvailable = req.body.isAvailable ? true : false;
+    const agent       = await Agent.findOneAndUpdate({_id: agentId}, {isAvailable});
+
+    // Let the agent start receive chats
+    return res.redirect(`/chat/start?username=${agent.username}`);
+  },
+  async startChat(req, res) {
+    const username  = req.query.username;
+
+    if (!username) {
+      return res.send('Username must be specified to chat')
+    }
+
+    const agent     = await Agent.findOne({
+      username
+    });
+
+    if (!agent) {
+      return res.send('Agent not found');
+    }
+
+    // Check if agent can NOT take more chats
+    if (agent.currentNumberOfChats >= agent.maxNumberOfChats) {
+      return res.send('Agent is fulffilled, and cannot take more chats');
+    }
+
+    // Let the agent start receive chats
+    return res.render('chat/list', {agent});
+  }
 };
