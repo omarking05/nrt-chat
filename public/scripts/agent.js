@@ -5,17 +5,16 @@ window.addEventListener('load', function () {
     socket.on('wa_message', function (data) {
         appendTextMessage(data);
     });
-
     loadListChats();
 });
 
 function appendTextMessage(data) {
-    var idElement = 'wa-message-' + data.senderId;
+    var idElement = 'wa-chat-' + data.senderId;
     var waMessageElement = document.getElementById(idElement);
     if (!waMessageElement) {
         var waMessageElement = document.createElement('div');
         waMessageElement.id = idElement;
-        waMessageElement.className = 'wa-message';
+        waMessageElement.className = 'wa-chat';
 
         var headingElement = document.createElement('span');
         headingElement.innerText = 'Message from: ' + data.senderId;
@@ -23,7 +22,7 @@ function appendTextMessage(data) {
 
         waMessageElement.appendChild(headingElement);
 
-        document.getElementById('wa-list-messages').appendChild(waMessageElement)
+        document.getElementById('wa-list-chats').appendChild(waMessageElement)
     }
 
     var newMessage = document.createElement('span');
@@ -62,18 +61,40 @@ function appendTextMessage(data) {
 
 function buildReplyForm(userId) {
     // TODO Now I use phone number as a userId
-    var button = document.createElement('button');
-        button.type = 'button';
-        button.id = 'reply-button-' + userId;
-        button.className = 'btn btn-primary reply-message-button';
-        button.innerText = 'Reply';
-        button.onclick = function() {
+    var replyButton = document.createElement('button');
+        replyButton.type = 'button';
+        replyButton.id = 'reply-button-' + userId;
+        replyButton.className = 'btn btn-primary reply-message-button';
+        replyButton.innerText = 'Reply';
+        replyButton.onclick = function() {
             var textElement = document.getElementById('reply-message-input-' + userId);
             if (!textElement) {
                 return false;
             }
             sendReplyToServer(textElement.value, userId);
             textElement.value = '';
+        };
+
+    var closeButton             = document.createElement('button');
+        closeButton.type        = 'button';
+        closeButton.className   = 'btn btn-primary ml-2';
+        closeButton.innerText   = 'Close chat';
+        closeButton.id          = 'close-chat-' + userId;
+
+        closeButton.onclick     = function() {
+            fetch('/chat/close', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({'userId': userId})
+            }).then(function(response) {
+                // Update status of chat
+                disableChat(userId);
+            }).catch(function(error) {
+                console.log(error);
+                // enableChat(userId);
+            });
+
+            return false;
         };
 
     var input = document.createElement('input');
@@ -92,7 +113,7 @@ function buildReplyForm(userId) {
         form.id = 'form-reply-' + userId;
         form.className = 'mt-3';
         form.onsubmit = function() {
-            button.click();
+            replyButton.click();
             return false;
         };
 
@@ -100,9 +121,18 @@ function buildReplyForm(userId) {
     div.appendChild(label);
     div.appendChild(input);
     form.appendChild(div);
-    form.appendChild(button);
+    form.appendChild(replyButton);
+    form.appendChild(closeButton);
 
     return form;
+}
+
+function disableChat(userId) {
+    document.getElementById('wa-chat-' + userId).className += ' disabled-chat';
+}
+
+function enableChat(userId) {
+    document.getElementById('wa-chat-' + userId).className.replace('disabled-chat', '');
 }
 
 function sendReplyToServer(text, userId) {

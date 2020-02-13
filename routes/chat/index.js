@@ -9,4 +9,6 @@ routes.get('/start', chatController.startChat);
 
 routes.post('/availability', chatController.toggleAgentAvailability);
 
+routes.post('/close', chatController.closeChat);
+
 module.exports = routes;
