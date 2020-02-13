@@ -4,9 +4,9 @@ const Message             = require('../models/message');
 module.exports = {
 
     async saveIncomingMessageToDb(formattedMessage) {
-        var existChat = await this.findChatBySenderId(formattedMessage.From);
+        var existChat = await this.findChatBySenderId(formattedMessage.senderId);
         if (!existChat || existChat.length == 0) {
-            existChat = await this.createChat({channelType: 'whatsapp', senderId: formattedMessage.From});
+            existChat = await this.createChat({channelType: 'whatsapp', senderId: formattedMessage.senderId});
         } else {
             existChat = existChat[0];
         }
