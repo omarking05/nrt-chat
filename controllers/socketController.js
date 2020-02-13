@@ -1,10 +1,11 @@
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilio            = require('twilio');
 const OutgoingMessage   = require('../models/whatsapp/outgoing-message');
+const Agent             = require('../models/agent');
 const chatService       = require('../services/chatService');
 const { io }            = require('../config');
 
-const handleSocket = function(socket) {
+const handleSocket = async function(socket) {
   // Get the id of the connected agent
   const agentId = socket.handshake.headers['x-agentid'];
 

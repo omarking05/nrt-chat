@@ -14,7 +14,24 @@
   <%- include('../common/navbar') %>
 
   <div class="jumbotron">
-    <h1 class="display-4">Chats of agent (<%= agent.name %>)</h1>
+    <div class="row">
+      <div class="col-10">
+        <h1 class="display-4">Chats of agent (<%= agent.name %>)</h1>
+      </div>
+      <div style="margin-top: 15px;" class="col-2">
+        <form id="availabiltyForm" method="POST" action="/chat/availability">
+          <input type="text" hidden name="id" value="<%= agent.id %>">
+          <label class="switch">
+            <% if (agent.isAvailable) { %>
+              <input type="checkbox" id="toggleAvailable" name="isAvailable" checked>
+            <% } else { %>
+              <input type="checkbox" id="toggleAvailable" name="isAvailable">
+            <% } %>
+            <span class="slider round"></span>
+          </label>
+        </form>
+      </div>
+    </div>
     <hr class="my-4">
 
     <!-- Chats start -->
@@ -26,7 +43,7 @@
 
   </div>
 
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script>
     var socket = io('http://localhost:3000', {
       transportOptions: {
@@ -37,8 +54,13 @@
         }
       }
     });
+    $(function() {
+      $('#toggleAvailable').on('change', function() {
+        $(this).val(this.checked);
+        $('#availabiltyForm').submit();
+      });
+    });
   </script>
-
 </body>
 
 </html>

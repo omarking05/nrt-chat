@@ -7,4 +7,6 @@ routes.post('/login', chatController.loginAgent);
 
 routes.get('/start', chatController.startChat);
 
+routes.post('/availability', chatController.toggleAgentAvailability);
+
 module.exports = routes;

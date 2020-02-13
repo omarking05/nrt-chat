@@ -32,9 +32,12 @@ module.exports = {
 
     const agents = await Agent.find({
       $where: () => {
-        return this.currentNumberOfChats < this.maxNumberOfChats;
+        return this.currentNumberOfChats < this.maxNumberOfChats && this.isAvailable;
       }
     });
+
+    // Pick random agent
+    const randomAgent = agents[Math.floor(Math.random() * agents.length)];
 
     // Then decide
 

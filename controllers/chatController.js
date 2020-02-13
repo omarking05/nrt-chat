@@ -28,6 +28,14 @@ module.exports = {
     // Let the agent start receive chats
     return res.redirect(`/chat/start?username=${username}`);
   },
+  async toggleAgentAvailability(req, res) {
+    const agentId     = req.body.id;
+    const isAvailable = req.body.isAvailable ? true : false;
+    const agent       = await Agent.findOneAndUpdate({_id: agentId}, {isAvailable});
+
+    // Let the agent start receive chats
+    return res.redirect(`/chat/start?username=${agent.username}`);
+  },
   async startChat(req, res) {
     const username  = req.query.username;
 
