@@ -1,4 +1,4 @@
-var socket = io('http://localhost:3000');
+var socket = {};
 
 window.addEventListener('load', function () {
     // Here we receive incoming whatsapp message

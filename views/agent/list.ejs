@@ -1,0 +1,52 @@
+<html>
+
+<head>
+  <title>All Agents</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <div class="row">
+      <div class="col-6">
+        <h1 class="display-4">All system agents</h1>
+      </div>
+      <div class="col-6">
+        <a style="float: right; margin-top: 15px;" class="btn btn-primary" href="agent/new">Create Agent</a>
+      </div>
+    </div>
+    <hr class="my-4">
+
+    <!-- Agents list start -->
+    <div class="list-group">
+      <% agents.forEach(function(agent) { %>
+        <a href="/control/agent/<%= agent.id %>" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <!-- Agent name -->
+            <h5 class="mb-1">
+              <%= agent.name %>
+            </h5>
+            <!-- Sender id -->
+            <small>#maxChats: <%= agent.maxNumberOfChats %></small>
+          </div>
+          <p style="margin-bottom: 0px;"><small><strong>Username:</strong> <%= agent.username %></small></p>
+          <p><small><strong>Sender ID:</strong> <%= agent.senderId %></small></p>
+        </a>
+      <% }); %>
+    </div>
+    <!-- Agents list end -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      $('.list-group-item-action').hover(
+       function(){ $(this).addClass('active') },
+       function(){ $(this).removeClass('active') }
+      )
+    </script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<html>
+
+<head>
+  <title>Login to chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <h1 class="display-4">Chat as</h1>
+    <hr class="my-4">
+
+    <!-- Chat login start -->
+    <form method="POST" action="/chat/login">
+      <div class="form-group">
+        <label for="username">Agent username</label>
+        <input name="username" type="text" class="form-control" id="username" placeholder="blaBla">
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Start Chat</button>
+    </form>
+    <!-- Chat login end -->
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+<html>
+
+<head>
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link type="text/css" rel="stylesheet" href="../../styles/main.css"></link>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://kit.fontawesome.com/d6f9094a71.js" crossorigin="anonymous"></script>
+  <script src="../../scripts/agent.js"></script>
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <h1 class="display-4">Chats of agent (<%= agent.name %>)</h1>
+    <hr class="my-4">
+
+    <!-- Chats start -->
+    <div class="row">
+      <div id="wa-list-messages" class="col-lg-12 wa-list-messages">
+      </div>
+    </div>
+    <!-- Chats end -->
+
+  </div>
+
+
+  <script>
+    var socket = io('http://localhost:3000', {
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            'x-agentid': '<%= agent.id %>'
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+
+</html>
