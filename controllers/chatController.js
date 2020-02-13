@@ -25,8 +25,6 @@ module.exports = {
       return res.send('Agent is fulffilled, and cannot take more chats');
     }
 
-    req.session.username = username;
-
     // Let the agent start receive chats
     return res.redirect(`/chat/start?username=${username}`);
   },
