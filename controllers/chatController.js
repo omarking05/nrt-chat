@@ -1,6 +1,5 @@
 const Chat    = require('../models/chat');
 const Agent   = require('../models/agent');
-const { io }  = require('../config');
 
 module.exports = {
   async getChats(_, res) {
@@ -30,6 +29,9 @@ module.exports = {
 
     // Let the agent start receive chats
     return res.redirect(`/chat/start?username=${username}`);
+  },
+  showAgent(req, res) {
+    res.sendFile(path.join(__dirname + '/../views/agent.html'));
   },
   async startChat(req, res) {
     const username  = req.query.username;

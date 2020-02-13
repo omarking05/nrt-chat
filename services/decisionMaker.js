@@ -20,10 +20,12 @@ module.exports = {
 
       // If he is not available then pick random available agent
 
-      
+
       // If no agents are available we should add it to queue
 
     }
+
+    // If we don't have a chat, then its a new message with a new chat
 
     // Then get all of our active agents
     // That their current chats number is less than their max chats number
@@ -33,8 +35,6 @@ module.exports = {
         return this.currentNumberOfChats < this.maxNumberOfChats;
       }
     });
-
-    // console.log(agents)
 
     // Then decide
 
