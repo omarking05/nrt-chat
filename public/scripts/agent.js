@@ -5,6 +5,8 @@ window.addEventListener('load', function () {
     socket.on('wa_message', function (data) {
         appendTextMessage(data);
     });
+
+    loadListChats();
 });
 
 function appendTextMessage(data) {
@@ -104,9 +106,43 @@ function buildReplyForm(userId) {
 }
 
 function sendReplyToServer(text, userId) {
+    // Send text of message into server
     socket.emit('wa_reply', {
         text: text,
         userId: userId,
         agentId: 1
     });
+}
+
+function loadListChats() {
+    var options = {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        }
+    };
+
+    fetch('/chats', options)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        var chats = data;
+        chats.forEach(function(chat) {
+            buildChatBlock(chat);
+        })
+
+    })
+    .catch(function(error) {
+        console.log('Error of loading chats')
+    })
+}
+
+function buildChatBlock(chat) {
+    if (chat.messages.length) {
+        chat.messages.forEach(function(message) {
+            message.senderId = chat.senderId;
+            appendTextMessage(message);
+        })
+    }
 }

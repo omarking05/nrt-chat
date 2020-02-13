@@ -6,7 +6,7 @@ module.exports = {
     async saveIncomingMessageToDb(formattedMessage) {
         var existChat = await this.findChatBySenderId(formattedMessage.From);
         if (!existChat || existChat.length == 0) {
-            existChat = await this.createChat({channel_type: 'whatsapp', sender_id: formattedMessage.From});
+            existChat = await this.createChat({channelType: 'whatsapp', senderId: formattedMessage.From});
         } else {
             existChat = existChat[0];
         }
@@ -45,6 +45,6 @@ module.exports = {
     },
 
     findChatBySenderId (senderId) {
-        return Chat.find({sender_id: senderId});
+        return Chat.find({senderId: senderId});
     }
 };
