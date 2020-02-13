@@ -13,6 +13,15 @@ module.exports = {
     
     // In case we already have a chat
     if (chat) {
+      // Find the current agent who is handling this chat
+
+      // Check if he is available and pass incoming message to him
+
+
+      // If he is not available then pick random available agent
+
+      
+      // If no agents are available we should add it to queue
 
     }
 
