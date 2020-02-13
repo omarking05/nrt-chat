@@ -1,8 +1,17 @@
-.wa-message {
-    width: 50%;
-    min-width: 250px;
+.wa-chat {
+    border: 1px solid gray;
     float:left;
-    border: 1px solid burlywood;
+    min-width: 450px;
+    padding: 10px;
+    margin-right: 2%;
+    margin-top: 10px;
+    width: 48%;
+}
+
+.disabled-chat {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .message-visitor {

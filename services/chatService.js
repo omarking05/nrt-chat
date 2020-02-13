@@ -1,5 +1,6 @@
 const Chat    = require('../models/chat');
 const Message = require('../models/message');
+const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
 
 function createChat (chat) {
   return Chat.create(chat).then(docTutorial => {
@@ -18,21 +19,31 @@ function createMessage (message, chatId) {
   });
 }
 
-function findChatBySenderId (senderId) {
-  return Chat.findOne({senderId: senderId});
+function findNonClosedChatBySenderId (senderId) {
+  return Chat.findOne({senderId: senderId, status: {$ne: CHAT_STATUSES.CLOSE}});
 }
 
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
-    var existChat = await findChatBySenderId(formattedMessage.senderId);
+    let existChat = await findNonClosedChatBySenderId(formattedMessage.senderId);
+    const status = formattedMessage.agentId ? CHAT_STATUSES.ACTIVE : CHAT_STATUSES.UNASSIGNED
     if (!existChat) {
-      existChat = await createChat({channelType: 'whatsapp', senderId: formattedMessage.senderId, currentAgentId: formattedMessage.agentId});
+      existChat = await createChat({
+        channelType: 'whatsapp',
+        senderId: formattedMessage.senderId,
+        currentAgentId: formattedMessage.agentId,
+        status
+      });
     } else {
-      existChat = existChat;
+      existChat.status = status;
     }
 
     formattedMessage.existChat = existChat;
 
     createMessage(formattedMessage, existChat._id);
+  },
+
+  async closeActiveChat(senderId) {
+    return Chat.updateOne({senderId: senderId, status: CHAT_STATUSES.ACTIVE}, {status: CHAT_STATUSES.CLOSE});
   }
 };

@@ -1,11 +1,13 @@
 const Chat    = require('../models/chat');
 const Agent   = require('../models/agent');
+const chatService = require('../services/chatService');
+const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
 
 module.exports = {
   async getChats(req, res) {
     try {
       const agentId  = req.query.agentId;
-      var chats = await Chat.find({currentAgentId: agentId}).populate('messages')
+      const chats = await Chat.find({currentAgentId: agentId, status: {$ne: CHAT_STATUSES.CLOSE} }).populate('messages')
       return res.send(chats);
     } catch (error) {
       return res.send(error);
@@ -59,5 +61,15 @@ module.exports = {
 
     // Let the agent start receive chats
     return res.render('chat/list', {agent});
+  },
+  async closeChat(req, res) {
+    try {
+      await chatService.closeActiveChat(req.body.userId);
+
+      // Need to emit socket.io event that we have free unassigned chat.
+      return res.sendStatus(200);
+    } catch (error) {
+      return res.send(error);
+    }
   }
 };
