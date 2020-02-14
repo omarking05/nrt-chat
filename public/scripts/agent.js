@@ -26,7 +26,7 @@ function appendTextMessage(data) {
     }
 
     var newMessage = document.createElement('span');
-    newMessage.id = data.messageSid;
+    newMessage.id = data._id;
     newMessage.className = 'd-block';
     var newMessageIcon;
     if (data.isAgent) {
@@ -128,7 +128,14 @@ function buildReplyForm(userId) {
 }
 
 function disableChat(userId) {
-    document.getElementById('wa-chat-' + userId).className += ' disabled-chat';
+    // Disable chat window
+    var chatElement = document.getElementById('wa-chat-' + userId)
+
+    chatElement.id = 'wa-chat-old-' + userId;
+    chatElement.className += ' disabled-chat';
+
+    // Remove form with reply and close buttons
+    document.getElementById('form-reply-' + userId).remove()
 }
 
 function enableChat(userId) {
