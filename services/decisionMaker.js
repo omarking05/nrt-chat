@@ -2,14 +2,15 @@ const Agent       = require('../models/agent');
 const Chat        = require('../models/chat');
 const { io }      = require('../config');
 const chatService = require('./chatService');
+const ChatStatus  = require('../models/chat-status');
 
 module.exports = {
   async handleIncomingMessage(incomingMessage) {
     let agent = null;
 
-    // Check if we have a chat that is currently going with this senderId
-    const chat  = await Chat.findOne().where('senderId').equals(incomingMessage.senderId);
-    
+    // Check if we have an active chat that is currently going with this senderId
+    const chat  = await Chat.findOne({senderId: incomingMessage.senderId, status: ChatStatus.CHAT_STATUS_ACTIVE});
+
     // In case we already have a chat
     if (chat) {
       // Find the current agent who is handling this chat
@@ -60,18 +61,24 @@ module.exports = {
         // Then get his channel, and pass this message to this channel
         // io.to(agentId).emit('wa_message', incomingMessage);
 
-    console.log('------------- Agent Handling Message -------------');
-    console.log(`Name: ${agent.name}`);
-    console.log(`isAvailable: ${agent.isAvailable}`);
-    console.log(`Max #Chats: ${agent.maxNumberOfChats}`);
-    console.log(`Current #Chats: ${agent.currentNumberOfChats}`);
-    console.log('------------- Agent Handling Message -------------');
+    if (agent) {
+      console.log('------------- Agent Handling Message -------------');
+      console.log(`Name: ${agent.name}`);
+      console.log(`isAvailable: ${agent.isAvailable}`);
+      console.log(`Max #Chats: ${agent.maxNumberOfChats}`);
+      console.log(`Current #Chats: ${agent.currentNumberOfChats}`);
+      console.log('------------- Agent Handling Message -------------');
 
-    // Assign message to this agent
-    incomingMessage.agentId = agent.id;
-    
-    // Send this message to this agent only
-    io.to(agent.id).emit('wa_message', incomingMessage);
+      // Assign message to this agent
+      incomingMessage.agentId = agent.id;
+
+      // Send this message to this agent only
+
+      // TODO If chat was changed from unassigned to active
+      //  and when we have several messages from visitor - we need to send all these messages
+      //  Now we just send the last message
+      io.to(agent.id).emit('wa_message', incomingMessage);
+    }
 
     // Then save it to DB
     chatService.saveIncomingMessageToDb(incomingMessage);
