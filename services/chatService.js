@@ -1,6 +1,7 @@
-const Chat    = require('../models/chat');
-const Message = require('../models/message');
-const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
+const Chat        = require('../models/chat');
+const Message     = require('../models/message');
+const Agent       = require('../models/agent');
+const ChatStatus  = require('../models/chat-status');
 
 function createChat (chat) {
   return Chat.create(chat).then(docTutorial => {
@@ -20,13 +21,21 @@ function createMessage (message, chatId) {
 }
 
 function findNonClosedChatBySenderId (senderId) {
-  return Chat.findOne({senderId: senderId, status: {$ne: CHAT_STATUSES.CLOSE}});
+  return Chat.findOne({senderId: senderId, status: {$ne: ChatStatus.CHAT_STATUS_CLOSED}});
+}
+
+
+// TODO Fake method
+function getAvailableAgent() {
+  return {
+    _id: '5e4542679cc7954314d2beb7'
+  }
 }
 
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
     let existChat = await findNonClosedChatBySenderId(formattedMessage.senderId);
-    const status = formattedMessage.agentId ? CHAT_STATUSES.ACTIVE : CHAT_STATUSES.UNASSIGNED
+    const status = formattedMessage.agentId ? ChatStatus.CHAT_STATUS_ACTIVE : ChatStatus.CHAT_STATUS_UNASSIGNED
     if (!existChat) {
       existChat = await createChat({
         channelType: 'whatsapp',
@@ -34,16 +43,52 @@ module.exports = {
         currentAgentId: formattedMessage.agentId,
         status
       });
+
+      this.increaseNumberOfChatsForAgent(formattedMessage.agentId);
     } else {
-      existChat.status = status;
+      // Check if this chat is unassigned and we have available agent and no one agent assigned to chat
+      // If so - change status of chat to `active` and assign available agent
+
+      if (existChat.status === ChatStatus.CHAT_STATUS_UNASSIGNED && !existChat.agentId) {
+        const agent = getAvailableAgent();
+        if (agent) {
+          const agentId = agent._id;
+          await Chat.updateOne({
+            senderId: formattedMessage.senderId,
+            status: ChatStatus.CHAT_STATUS_UNASSIGNED
+          }, {
+            status: ChatStatus.CHAT_STATUS_ACTIVE,
+            currentAgentId: agentId
+          });
+
+          this.increaseNumberOfChatsForAgent(agentId);
+        }
+      }
     }
 
     formattedMessage.existChat = existChat;
-
     createMessage(formattedMessage, existChat._id);
   },
 
   async closeActiveChat(senderId) {
-    return Chat.updateOne({senderId: senderId, status: CHAT_STATUSES.ACTIVE}, {status: CHAT_STATUSES.CLOSE});
+    // Update status of chat
+    const chat = await Chat.findOneAndUpdate({senderId: senderId, status: ChatStatus.CHAT_STATUS_ACTIVE}, {status: ChatStatus.CHAT_STATUS_CLOSED});
+
+    // Decrement count of active chats for agent
+    this.decreaseNumberOfChatsForAgent(chat.currentAgentId)
+  },
+
+  async increaseNumberOfChatsForAgent(agentId, count = 1){
+    await Agent.updateOne(
+        {_id: agentId},
+        {$inc: {currentNumberOfChats: count}}
+    );
+  },
+
+  async decreaseNumberOfChatsForAgent(agentId, count = -1){
+    await Agent.updateOne(
+        {_id: agentId},
+        {$inc: {currentNumberOfChats: count}}
+    );
   }
 };

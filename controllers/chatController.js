@@ -1,13 +1,13 @@
-const Chat    = require('../models/chat');
-const Agent   = require('../models/agent');
+const Chat        = require('../models/chat');
+const Agent       = require('../models/agent');
 const chatService = require('../services/chatService');
-const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
+const ChatStatus  = require('../models/chat-status');
 
 module.exports = {
   async getChats(req, res) {
     try {
       const agentId  = req.query.agentId;
-      const chats = await Chat.find({currentAgentId: agentId, status: {$ne: CHAT_STATUSES.CLOSE} }).populate('messages')
+      const chats = await Chat.find({currentAgentId: agentId, status: {$ne: ChatStatus.CHAT_STATUS_CLOSED} }).populate('messages')
       return res.send(chats);
     } catch (error) {
       return res.send(error);
@@ -35,6 +35,29 @@ module.exports = {
     const agentId     = req.body.id;
     const isAvailable = req.body.isAvailable ? true : false;
     const agent       = await Agent.findOneAndUpdate({_id: agentId}, {isAvailable});
+
+    if (isAvailable) {
+      const maximumOfAvailableChats = agent.maxNumberOfChats - agent.currentNumberOfChats;
+
+      // If user has less active chats as maxNumberOfChats
+      // Find unassigned chats and assign this agent to chats
+      if (maximumOfAvailableChats > 0) {
+        const unassignedChats = await Chat
+          .find({
+            status: ChatStatus.CHAT_STATUS_UNASSIGNED
+          })
+          .limit(maximumOfAvailableChats)
+          .sort({createdAt: 'asc'});
+
+        // TODO Looks not very good
+        //  Perhaps exists another way to update fetched data
+        unassignedChats.forEach(async (chat) => {
+          await Chat.updateOne({_id: chat._id}, {status: ChatStatus.CHAT_STATUS_ACTIVE, currentAgentId: agentId})
+        });
+
+        chatService.increaseNumberOfChatsForAgent(agentId, unassignedChats.length)
+      }
+    }
 
     // Let the agent start receive chats
     return res.redirect(`/chat/start?username=${agent.username}`);
@@ -66,7 +89,6 @@ module.exports = {
     try {
       await chatService.closeActiveChat(req.body.userId);
 
-      // Need to emit socket.io event that we have free unassigned chat.
       return res.sendStatus(200);
     } catch (error) {
       return res.send(error);
