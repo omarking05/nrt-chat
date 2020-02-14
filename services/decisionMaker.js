@@ -2,14 +2,14 @@ const Agent       = require('../models/agent');
 const Chat        = require('../models/chat');
 const { io }      = require('../config');
 const chatService = require('./chatService');
-const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
+const ChatStatus  = require('../models/chat-status');
 
 module.exports = {
   async handleIncomingMessage(incomingMessage) {
     let agent = null;
 
     // Check if we have an active chat that is currently going with this senderId
-    const chat  = await Chat.findOne({senderId: incomingMessage.senderId, status: CHAT_STATUSES.ACTIVE});
+    const chat  = await Chat.findOne({senderId: incomingMessage.senderId, status: ChatStatus.CHAT_STATUS_ACTIVE});
 
     // In case we already have a chat
     if (chat) {

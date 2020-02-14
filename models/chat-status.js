@@ -7,4 +7,4 @@ module.exports = {
   CHAT_STATUS_UNASSIGNED,
   CHAT_STATUS_ACTIVE,
   CHAT_STATUS_CLOSED
-}
+};
