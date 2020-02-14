@@ -16,10 +16,17 @@ module.exports = {
     // First create the account
     const account   = await Account.create({name, waNumber});
 
-    // Then loop over agents
-    for (const agentId of agentsIds) {
+    if (Array.isArray(agentsIds)) {
+      // Then loop over agents
+      for (const agentId of agentsIds) {
+        // get agent
+        const agent = await Agent.findByIdAndUpdate(agentId, {account: account});
+        // add agent to account
+        account.agents.push(agent);
+      }
+    } else if (typeof agentsIds === 'string') {
       // get agent
-      const agent = await Agent.findByIdAndUpdate(agentId, {account: account});
+      const agent = await Agent.findByIdAndUpdate(agentsIds, {account: account});
       // add agent to account
       account.agents.push(agent);
     }
@@ -34,7 +41,7 @@ module.exports = {
     const waNumber  = req.body.waNumber;
     let agentsIds   = req.body.agents;
 
-    if (!Array.isArray(agentsIds)) {
+    if (agentsIds && !Array.isArray(agentsIds)) {
       agentsIds = [agentsIds];
     }
 
