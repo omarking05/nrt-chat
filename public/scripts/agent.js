@@ -1,11 +1,17 @@
 var socket = {};
 
 window.addEventListener('load', function () {
+    window.oldDocumentTitle = document.title;
     // Here we receive incoming whatsapp message
     socket.on('wa_message', function (data) {
         appendTextMessage(data);
+        if (document.hidden) {
+            showBlinkingTitleNotification();
+        }
     });
+
     loadListChats();
+    window.addEventListener('focus', hideBlinkingTitleNotification);
 });
 
 function appendTextMessage(data) {
@@ -158,4 +164,22 @@ function buildChatBlock(chat) {
             appendTextMessage(message);
         })
     }
+}
+
+function showBlinkingTitleNotification() {
+    document.querySelector('link[rel="icon"]').href = '/images/favicon-notification.png'
+    window.notificationInterval = window.setInterval(function() {
+        if (document.title !== '!!!!!!!!!!!!') {
+            document.querySelector('title').innerHTML = '!!!!!!!!!!!!';
+        } else {
+            document.querySelector('title').innerText = 'You have new message';
+        }
+    }, 250);
+}
+
+function hideBlinkingTitleNotification() {
+    window.clearInterval(window.notificationInterval);
+    window.notificationInterval = null;
+    document.title = window.oldDocumentTitle;
+    document.querySelector('link[rel="icon"]').href = '/images/favicon.ico'
 }
