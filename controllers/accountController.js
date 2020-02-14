@@ -1,5 +1,6 @@
 const Account = require('../models/account');
 const Agent   = require('../models/agent');
+const Chat    = require('../models/chat');
 
 module.exports = {
   async createAccountPage(_, res) {
@@ -81,6 +82,26 @@ module.exports = {
       });
     } else {
       const accounts = await Account.find()
+      return res.render('account/list', {
+        accounts
+      });
+    }
+  },
+  async getAllChats(req, res) {
+    const accountId = req.params.id;
+    if (accountId) {
+      const account = await Account.findById(accountId);
+      const agents  = await Agent.find({account: account});
+      var agentIds = [];
+      for (const agent of agents) {
+        agentIds.push(agent._id);
+      }
+      const chats   = await Chat.find({currentAgentId: {$in: agentIds}});
+      return res.render('account/chats', {
+        chats
+      });
+    } else {
+      const accounts = await Account.find();
       return res.render('account/list', {
         accounts
       });

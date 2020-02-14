@@ -7,6 +7,9 @@ routes.post('/', AccountController.createAccountLogic);
 
 routes.post('/account-update', AccountController.updateAgentLogic);
 
-routes.get('/:id*?', AccountController.getAllAccounts);
+routes.get('/:id?', AccountController.getAllAccounts);
+
+routes.get('/:id/chats', AccountController.getAllChats);
+
 
 module.exports = routes;

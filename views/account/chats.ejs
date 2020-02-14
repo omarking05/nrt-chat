@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <title>All Accounts</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+  <%- include('../common/navbar') %>
+
+  <div class="jumbotron">
+    <div class="row">
+      <div class="col-6">
+        <h1 class="display-4">All Account chats</h1>
+      </div>
+      <div class="col-6">
+        <a style="float: right; margin-top: 15px;" class="btn btn-primary" href="account/new">Create Account</a>
+      </div>
+    </div>
+    <hr class="my-4">
+
+    <!-- Accounts list start -->
+    <div class="list-group">
+      <% chats.forEach(function(chat) { %>
+        <a href="/control/account/<%= chat.id %>" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <!-- Agent name -->
+            <h5 class="mb-1">
+              <%= chat.senderId %>
+            </h5>
+            <!-- Sender id -->
+            <small>messages number: <%= chat.messages.length %></small>
+          </div>
+        </a>
+      <% }); %>
+    </div>
+    <!-- Accounts list end -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      $('.list-group-item-action').hover(
+       function(){ $(this).addClass('active') },
+       function(){ $(this).removeClass('active') }
+      )
+    </script>
+  </div>
+</body>
+
+</html>
