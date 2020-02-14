@@ -127,8 +127,11 @@ function buildReplyForm(userId) {
     return form;
 }
 
+
 function disableChat(userId) {
-    document.getElementById('wa-chat-' + userId).className += ' disabled-chat';
+    $('#wa-chat-\\' + userId).fadeOut(300, function() {
+        $(this).remove();
+    });
 }
 
 function enableChat(userId) {

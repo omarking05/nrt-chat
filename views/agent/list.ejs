@@ -33,7 +33,8 @@
             <small>#maxChats: <%= agent.maxNumberOfChats %></small>
           </div>
           <p style="margin-bottom: 0px;"><small><strong>Username:</strong> <%= agent.username %></small></p>
-          <p><small><strong>Sender ID:</strong> <%= agent.senderId %></small></p>
+          <p style="margin-bottom: 0px;"><small><strong>Sender ID:</strong> <%= agent.senderId %></small></p>
+          <small><strong>Available:</strong> <%- agent.isAvailable ? "Yes" : "No" %></small>
         </a>
       <% }); %>
     </div>

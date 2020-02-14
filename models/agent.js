@@ -7,7 +7,10 @@ const Agent = mongoose.model(
         username: String,
         senderId: String,
         maxNumberOfChats: Number,
-        currentNumberOfChats: Number,
+        currentNumberOfChats: {
+            type: Number,
+            default: 0
+        },
         isAvailable: Boolean,
         account: {
             type: mongoose.Schema.Types.ObjectId,
