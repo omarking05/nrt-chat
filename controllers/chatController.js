@@ -36,6 +36,29 @@ module.exports = {
     const isAvailable = req.body.isAvailable ? true : false;
     const agent       = await Agent.findOneAndUpdate({_id: agentId}, {isAvailable});
 
+    if (isAvailable) {
+      const maximumOfAvailableChats = agent.maxNumberOfChats - agent.currentNumberOfChats;
+
+      // If user has less active chats as maxNumberOfChats
+      // Find unassigned chats and assign this agent to chats
+      if (maximumOfAvailableChats > 0) {
+        const unassignedChats = await Chat
+          .find({
+            status: CHAT_STATUSES.UNASSIGNED
+          })
+          .limit(maximumOfAvailableChats)
+          .sort({createdAt: 'asc'});
+
+        // TODO Looks not very good
+        //  Perhaps exists another way to update fetched data
+        unassignedChats.forEach(async (chat) => {
+          await Chat.updateOne({_id: chat._id}, {status: CHAT_STATUSES.ACTIVE, currentAgentId: agentId})
+        });
+
+        chatService.increaseNumberOfChatsForAgent(agentId, unassignedChats.length)
+      }
+    }
+
     // Let the agent start receive chats
     return res.redirect(`/chat/start?username=${agent.username}`);
   },
@@ -66,7 +89,6 @@ module.exports = {
     try {
       await chatService.closeActiveChat(req.body.userId);
 
-      // Need to emit socket.io event that we have free unassigned chat.
       return res.sendStatus(200);
     } catch (error) {
       return res.send(error);

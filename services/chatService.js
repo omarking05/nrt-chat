@@ -32,20 +32,6 @@ function getAvailableAgent() {
   }
 }
 
-async function increaseNumberOfChatsForAgent(agentId, count = 1){
-  await Agent.updateOne(
-      {_id: agentId},
-      {$inc: {currentNumberOfChats: count}}
-  );
-}
-
-async function decreaseNumberOfChatsForAgent(agentId, count = -1){
-  await Agent.updateOne(
-      {_id: agentId},
-      {$inc: {currentNumberOfChats: count}}
-  );
-}
-
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
     let existChat = await findNonClosedChatBySenderId(formattedMessage.senderId);
@@ -58,7 +44,7 @@ module.exports = {
         status
       });
 
-      increaseNumberOfChatsForAgent(formattedMessage.agentId);
+      this.increaseNumberOfChatsForAgent(formattedMessage.agentId);
     } else {
       // Check if this chat is unassigned and we have available agent and no one agent assigned to chat
       // If so - change status of chat to `active` and assign available agent
@@ -75,15 +61,12 @@ module.exports = {
             currentAgentId: agentId
           });
 
-          console.log('__________________');
-          console.log (`agentId = ${agentId}`)
-          increaseNumberOfChatsForAgent(agentId);
+          this.increaseNumberOfChatsForAgent(agentId);
         }
       }
     }
 
     formattedMessage.existChat = existChat;
-
     createMessage(formattedMessage, existChat._id);
   },
 
@@ -92,6 +75,20 @@ module.exports = {
     const chat = await Chat.findOneAndUpdate({senderId: senderId, status: CHAT_STATUSES.ACTIVE}, {status: CHAT_STATUSES.CLOSE});
 
     // Decrement count of active chats for agent
-    decreaseNumberOfChatsForAgent(chat.currentAgentId)
+    this.decreaseNumberOfChatsForAgent(chat.currentAgentId)
+  },
+
+  async increaseNumberOfChatsForAgent(agentId, count = 1){
+    await Agent.updateOne(
+        {_id: agentId},
+        {$inc: {currentNumberOfChats: count}}
+    );
+  },
+
+  async decreaseNumberOfChatsForAgent(agentId, count = -1){
+    await Agent.updateOne(
+        {_id: agentId},
+        {$inc: {currentNumberOfChats: count}}
+    );
   }
 };

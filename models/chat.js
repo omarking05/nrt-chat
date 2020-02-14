@@ -20,7 +20,11 @@ const Chat = mongoose.model(
         messages: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message"
-        }]
+        }],
+        createdAt: {
+            type: Date,
+            default: Date.now()
+        }
     })
 );
 
