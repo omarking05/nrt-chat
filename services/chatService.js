@@ -44,6 +44,6 @@ module.exports = {
   },
 
   async closeActiveChat(senderId) {
-    return Chat.updateOne({senderId: senderId, status: CHAT_STATUSES.ACTIVE}, {status: CHAT_STATUSES.CLOSE});
+    return await Chat.updateOne({senderId: senderId, status: CHAT_STATUSES.ACTIVE}, {status: CHAT_STATUSES.CLOSE});
   }
 };

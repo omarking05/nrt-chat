@@ -12,7 +12,9 @@ const io          = socketIo(Server);
 /** Server Config */
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({
+  extended: true
+}));
 app.use(cookieSession({
   name: 'session',
   secret: ['nrt-secret'],
