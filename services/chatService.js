@@ -60,7 +60,8 @@ module.exports = {
             status: ChatStatus.CHAT_STATUS_UNASSIGNED
           }, {
             status: ChatStatus.CHAT_STATUS_ACTIVE,
-            currentAgentId: agentId
+            currentAgentId: agentId,
+            currentAgent: agent,
           });
 
           this.increaseNumberOfChatsForAgent(agentId);

@@ -99,12 +99,27 @@ module.exports = {
       // const chats   = await Chat.find({currentAgentId: {$in: agentIds}}).populate('currentAgent');
       const chats   = await Chat.find().populate('currentAgent');
         // return res.send(chats);
-      return res.render('account/chats', {chats, agents});
+      accounts = [accountId];
+      return res.render('account/chats', {chats, agents, accounts});
     } else {
       const accounts = await Account.find();
       return res.render('account/list', {
         accounts
       });
     }
+  },
+  async assignChatToAgent(req, res) {
+    const agentId = req.body.agentId;
+    const chatId = req.body.chatId;
+    const accountId = req.params.id;
+
+    const agent = await Agent.findById(agentId);
+    const chat = await Chat.findById(chatId);
+
+    chat.currentAgentId = agent.id;
+    chat.currentAgent = agent;
+
+    chat.save();
+    return res.redirect('/control/account/' + accountId + '/chats');
   }
 };

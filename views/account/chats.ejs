@@ -37,7 +37,13 @@
         <% } else {%>
           <p style="margin-bottom: 0px;"><small><strong>agent:</strong>
               <!--<a href="" class="btn btn-success">Assign</a>-->
-              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="<%= chat.senderId %>">Assign</button>
+              <button type="button"
+                      class="btn btn-primary"
+                      data-toggle="modal"
+                      data-target="#exampleModal"
+                      data-whatever="<%= chat.senderId %>"
+                      data-whatever2="<%= chat._id %>"
+              >Assign</button>
             </small></p>
         <% } %>
       </div>
@@ -56,20 +62,22 @@
           </button>
         </div>
         <div class="modal-body">
-          <form action="/control/account" method="get">
+          <form id="assign-chat-form" action="/control/account/<%= accounts[0] %>/chat/assign" method="post">
             <div class="form-group">
               <label for="agents">Agents</label>
-              <select name="agents" multiple class="form-control" id="agents">
+              <select name="agentId" class="form-control" id="agents">
                 <% agents.forEach(function(agent) { %>
                     <option value="<%= agent.id %>"><%= agent.name %></option>
                 <% }); %>
               </select>
+              <input type="text" name="chatId" class="form-control chatId" id="chatId">
+              <input type="text" name="accountId" id="accountId" class="form-control" value="<%= accounts[0] %>">
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" id="submit-chat-form" class="btn btn-primary">Save</button>
         </div>
       </div>
     </div>
@@ -80,19 +88,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script>
-      // $('.list-group-item-action').hover(
-      //     function(){ $(this).addClass('active') },
-      //     function(){ $(this).removeClass('active') }
-      // )
-      $('#exampleModal').on('show.bs.modal', function (event) {
-          var button = $(event.relatedTarget) // Button that triggered the modal
-          var recipient = button.data('whatever') // Extract info from data-* attributes
-          // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-          // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-          var modal = $(this)
-          modal.find('.modal-title').text('Assign chat ' + recipient + ' to')
-          modal.find('.modal-body input').val(recipient)
-      })
+    $('#exampleModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) // Button that triggered the modal
+      var recipient = button.data('whatever');
+      var chatId = button.data('whatever2');
+      var modal = $(this)
+      modal.find('.modal-title').text('Assign chat ' + recipient + ' to')
+      modal.find('.modal-body .chatId').val(chatId)
+    })
+    $('#submit-chat-form').on('click', function (event) {
+      $('#assign-chat-form').submit();
+    });
   </script>
 </div>
 </body>
