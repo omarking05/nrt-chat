@@ -41,7 +41,7 @@ module.exports = {
     const waNumber  = req.body.waNumber;
     let agentsIds   = req.body.agents;
 
-    if (!Array.isArray(agentsIds)) {
+    if (agentsIds && !Array.isArray(agentsIds)) {
       agentsIds = [agentsIds];
     }
 
