@@ -1,5 +1,6 @@
 const Chat    = require('../models/chat');
 const Message = require('../models/message');
+const Agent   = require('../models/agent');
 const CHAT_STATUSES = require('../constants').CHAT_STATUSES;
 
 function createChat (chat) {
@@ -26,12 +27,14 @@ function findNonClosedChatBySenderId (senderId) {
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
     let existChat = await findNonClosedChatBySenderId(formattedMessage.senderId);
-    const status = formattedMessage.agentId ? CHAT_STATUSES.ACTIVE : CHAT_STATUSES.UNASSIGNED
+    const status = formattedMessage.agentId ? CHAT_STATUSES.ACTIVE : CHAT_STATUSES.UNASSIGNED;
+    const agent  = await Agent.findById(formattedMessage.agentId);
     if (!existChat) {
       existChat = await createChat({
         channelType: 'whatsapp',
         senderId: formattedMessage.senderId,
         currentAgentId: formattedMessage.agentId,
+        currentAgent: agent,
         status
       });
     } else {

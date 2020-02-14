@@ -96,10 +96,10 @@ module.exports = {
       for (const agent of agents) {
         agentIds.push(agent._id);
       }
-      const chats   = await Chat.find({currentAgentId: {$in: agentIds}});
-      return res.render('account/chats', {
-        chats
-      });
+      // const chats   = await Chat.find({currentAgentId: {$in: agentIds}}).populate('currentAgent');
+      const chats   = await Chat.find().populate('currentAgent');
+        // return res.send(chats);
+      return res.render('account/chats', {chats, agents});
     } else {
       const accounts = await Account.find();
       return res.render('account/list', {
