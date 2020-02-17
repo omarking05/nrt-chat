@@ -70,8 +70,8 @@
                     <option value="<%= agent.id %>"><%= agent.name %></option>
                 <% }); %>
               </select>
-              <input type="text" name="chatId" class="form-control chatId" id="chatId">
-              <input type="text" name="accountId" id="accountId" class="form-control" value="<%= accounts[0] %>">
+              <input type="hidden" name="chatId" class="form-control chatId" id="chatId">
+              <input type="hidden" name="accountId" id="accountId" class="form-control" value="<%= accounts[0] %>">
             </div>
           </form>
         </div>
