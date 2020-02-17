@@ -35,12 +35,14 @@ function getAvailableAgent() {
 module.exports = {
   async saveIncomingMessageToDb(formattedMessage) {
     let existChat = await findNonClosedChatBySenderId(formattedMessage.senderId);
-    const status = formattedMessage.agentId ? ChatStatus.CHAT_STATUS_ACTIVE : ChatStatus.CHAT_STATUS_UNASSIGNED
+    const status = formattedMessage.agentId ? ChatStatus.CHAT_STATUS_ACTIVE : ChatStatus.CHAT_STATUS_UNASSIGNED;
+    const agent  = await Agent.findById(formattedMessage.agentId);
     if (!existChat) {
       existChat = await createChat({
         channelType: 'whatsapp',
         senderId: formattedMessage.senderId,
         currentAgentId: formattedMessage.agentId,
+        currentAgent: agent,
         status
       });
 
@@ -58,7 +60,8 @@ module.exports = {
             status: ChatStatus.CHAT_STATUS_UNASSIGNED
           }, {
             status: ChatStatus.CHAT_STATUS_ACTIVE,
-            currentAgentId: agentId
+            currentAgentId: agentId,
+            currentAgent: agent,
           });
 
           this.increaseNumberOfChatsForAgent(agentId);

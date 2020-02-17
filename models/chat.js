@@ -6,6 +6,10 @@ const Chat = mongoose.model(
         channelType: String,
         senderId: String,
         currentAgentId: String,
+        currentAgent: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Agent"
+        },
         // unassigned  - Visitor send message (no one agent assigned)
         // active  - Visitor send message and agent assigned
         // closed - Agent clicked to close button type: String,
