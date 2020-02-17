@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ChatStatus = require('./chat-status');
 
 const Chat = mongoose.model(
     "Chat",
@@ -6,12 +7,9 @@ const Chat = mongoose.model(
         channelType: String,
         senderId: String,
         currentAgentId: String,
-        // unassigned  - Visitor send message (no one agent assigned)
-        // active  - Visitor send message and agent assigned
-        // closed - Agent clicked to close button type: String,
         status: {
             type: String,
-            default: "unassigned"
+            default: ChatStatus.CHAT_STATUS_UNASSIGNED
         },
         account: {
             type: mongoose.Schema.Types.ObjectId,
@@ -27,5 +25,13 @@ const Chat = mongoose.model(
         }
     })
 );
+
+Chat.getOldestUnassignedChat = async function() {
+    return this.findOne({status: ChatStatus.CHAT_STATUS_UNASSIGNED}).order({'createdAt': 1}).populate('messages')
+};
+
+Chat.assignAgentId = async function(agentId) {
+    return this.updateOne({_id: this._id}, {currentAgentId: agentId});
+};
 
 module.exports = Chat;

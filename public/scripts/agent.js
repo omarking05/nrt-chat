@@ -2,6 +2,7 @@ var socket = {};
 
 window.addEventListener('load', function () {
     window.oldDocumentTitle = document.title;
+
     // Here we receive incoming whatsapp message
     socket.on('wa_message', function (data) {
         appendTextMessage(data);
@@ -9,6 +10,16 @@ window.addEventListener('load', function () {
             showBlinkingTitleNotification();
         }
     });
+
+    // Here we receive full whatsapp chat
+    socket.on('wa_list', function (data) {
+        buildChatBlock(data);
+
+        if (document.hidden) {
+            showBlinkingTitleNotification();
+        }
+    });
+
 
     loadListChats();
     window.addEventListener('focus', hideBlinkingTitleNotification);

@@ -2,6 +2,8 @@ const Chat        = require('../models/chat');
 const Message     = require('../models/message');
 const Agent       = require('../models/agent');
 const ChatStatus  = require('../models/chat-status');
+const { io }      = require('../config');
+
 
 function createChat (chat) {
   return Chat.create(chat).then(docTutorial => {
@@ -71,11 +73,28 @@ module.exports = {
   },
 
   async closeActiveChat(senderId) {
+    const currentAgentId = chat.currentAgentId;
     // Update status of chat
     const chat = await Chat.findOneAndUpdate({senderId: senderId, status: ChatStatus.CHAT_STATUS_ACTIVE}, {status: ChatStatus.CHAT_STATUS_CLOSED});
 
     // Decrement count of active chats for agent
-    this.decreaseNumberOfChatsForAgent(chat.currentAgentId)
+    this.decreaseNumberOfChatsForAgent(currentAgentId);
+
+    const agent = Agent.findById(currentAgentId);
+
+    // TODO Move this block into decisionMaker
+    if (agent.currentNumberOfChats < agent.maxNumberOfChats) {
+      const chat = await Chat.getOldestUnassignedChat();
+      console.log(chat);
+
+      if (chat) {
+        await chat.assignAgentId(currentAgentId);
+        this.increaseNumberOfChatsForAgent(currentAgentId);
+
+        io.emit('wa_chat', chat);
+      }
+    }
+
   },
 
   async increaseNumberOfChatsForAgent(agentId, count = 1){

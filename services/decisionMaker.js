@@ -73,7 +73,6 @@ module.exports = {
       incomingMessage.agentId = agent.id;
 
       // Send this message to this agent only
-
       // TODO If chat was changed from unassigned to active
       //  and when we have several messages from visitor - we need to send all these messages
       //  Now we just send the last message
