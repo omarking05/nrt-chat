@@ -10,6 +10,14 @@ window.addEventListener('load', function () {
         }
     });
 
+    socket.on('wa_chat', function (data) {
+        buildChatBlock(data);
+        if (document.hidden) {
+            showBlinkingTitleNotification();
+        }
+    });
+
+
     loadListChats();
     window.addEventListener('focus', hideBlinkingTitleNotification);
 });
